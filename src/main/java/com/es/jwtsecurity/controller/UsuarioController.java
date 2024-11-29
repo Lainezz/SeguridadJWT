@@ -2,8 +2,7 @@ package com.es.jwtsecurity.controller;
 
 import com.es.jwtsecurity.dto.UsuarioLoginDTO;
 import com.es.jwtsecurity.dto.UsuarioRegisterDTO;
-import com.es.jwtsecurity.model.Usuario;
-import com.es.jwtsecurity.service.CustomUserDetailsService;
+import com.es.jwtsecurity.service.UsuarioService;
 import com.es.jwtsecurity.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,12 +29,12 @@ public class UsuarioController {
     @Autowired
     private AuthenticationManager authenticationManager;
     /**
-     * El objeto customUserDetailsService es un objeto de tipo {@link CustomUserDetailsService}
+     * El objeto customUserDetailsService es un objeto de tipo {@link UsuarioService}
      * ¡RECORDAD!
      * La clase CustomUserDetailsService no es más que nuestro UsuarioService pero con otro nombre.
      */
     @Autowired
-    private CustomUserDetailsService customUserDetailsService;
+    private UsuarioService customUserDetailsService;
 
     @Autowired
     private TokenService tokenService;
