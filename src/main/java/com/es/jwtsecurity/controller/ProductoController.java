@@ -1,9 +1,11 @@
 package com.es.jwtsecurity.controller;
 
 import com.es.jwtsecurity.dto.ProductoDTO;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -33,32 +35,42 @@ public class ProductoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductoDTO> getById(@PathVariable String id) {
-        return null;
+        // Prueba para ver si funciona
+        return new ResponseEntity<>(new ProductoDTO("getProductoById", 1.00, 1), HttpStatus.OK);
     }
 
     @GetMapping("/byNombre/{nombre}")
     public ResponseEntity<ProductoDTO> getByNombre(@PathVariable String nombre) {
-        return null;
+        // Prueba para ver si funciona
+        return new ResponseEntity<>(new ProductoDTO("getProductoByNombre", 2.00, 2), HttpStatus.OK);
     }
 
     @GetMapping("/asc")
     public ResponseEntity<List<ProductoDTO>> getAllAsc() {
-        return null;
+        List<ProductoDTO> listaProductos = new ArrayList<>();
+        listaProductos.add(new ProductoDTO("getProductosAsc", 3.00, 3));
+        // Prueba para ver si funciona
+        return new ResponseEntity<>(listaProductos, HttpStatus.OK);
     }
 
     @GetMapping("/desc")
     public ResponseEntity<List<ProductoDTO>> getAllDesc() {
-        return null;
+        List<ProductoDTO> listaProductos = new ArrayList<>();
+        listaProductos.add(new ProductoDTO("getProductosDesc", 4.00, 4));
+        // Prueba para ver si funciona
+        return new ResponseEntity<>(listaProductos, HttpStatus.OK);
     }
 
     @PostMapping("/")
     public ResponseEntity<ProductoDTO> insert(@RequestBody ProductoDTO productoDTO) {
-        return null;
+        // Prueba para ver si funciona
+        return new ResponseEntity<>(new ProductoDTO("insertProducto", 5.00, 5), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable String id) {
-        return null;
+        // Prueba para ver si funciona
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
