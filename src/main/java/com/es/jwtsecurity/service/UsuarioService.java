@@ -1,16 +1,28 @@
 package com.es.jwtsecurity.service;
 
+import com.es.jwtsecurity.dto.UsuarioDTO;
+import com.es.jwtsecurity.dto.UsuarioLoginDTO;
 import com.es.jwtsecurity.dto.UsuarioRegisterDTO;
+import com.es.jwtsecurity.error.exception.BadRequestException;
+import com.es.jwtsecurity.error.exception.DuplicateException;
+import com.es.jwtsecurity.error.exception.NotFoundException;
 import com.es.jwtsecurity.model.Usuario;
 import com.es.jwtsecurity.repository.UsuarioRepository;
 import com.es.jwtsecurity.security.SecurityConfig;
+import com.es.jwtsecurity.util.mapper.UsuarioMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService implements UserDetailsService {
@@ -29,6 +41,9 @@ public class UsuarioService implements UserDetailsService {
      */
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UsuarioMapper usuarioMapper;
 
     /**
      * ¡IMPORTANTE!
@@ -53,11 +68,15 @@ public class UsuarioService implements UserDetailsService {
         Tenemos que convertir nuestro objeto de tipo Usuario a un objeto de tipo UserDetails
         ¡No os preocupéis, esto es siempre igual!
          */
+        List<GrantedAuthority> authorities = Arrays.stream(usuario.getRoles().split(","))
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.trim()))
+                .collect(Collectors.toList());
+
         UserDetails userDetails = User // User pertenece a SpringSecurity
                 .builder()
                 .username(usuario.getUsername())
                 .password(usuario.getPassword())
-                .roles(usuario.getRoles().split(","))
+                .authorities(authorities)
                 .build();
 
         return userDetails;
@@ -71,7 +90,12 @@ public class UsuarioService implements UserDetailsService {
     public UsuarioRegisterDTO registerUser(UsuarioRegisterDTO usuarioRegisterDTO) {
         // Comprobamos que el usuario no existe en la base de datos
         if (usuarioRepository.findByUsername(usuarioRegisterDTO.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("El nombre de usuario ya existe");
+            throw new DuplicateException("El nombre de usuario ya existe");
+        }
+
+        // Compruebo que ambas contrasenias coinciden
+        if(!usuarioRegisterDTO.getPassword1().equals(usuarioRegisterDTO.getPassword2())) {
+            throw new BadRequestException("Ambas contraseñas deben ser iguales");
         }
 
         // Creamos la instancia de
@@ -82,7 +106,7 @@ public class UsuarioService implements UserDetailsService {
          ¿De dónde viene ese passwordEncoder?
          El objeto passwordEncoder está definido al principio de esta clase.
          */
-        newUsuario.setPassword(passwordEncoder.encode(usuarioRegisterDTO.getPassword())); // Hashear la contraseña
+        newUsuario.setPassword(passwordEncoder.encode(usuarioRegisterDTO.getPassword1())); // Hashear la contraseña
         newUsuario.setUsername(usuarioRegisterDTO.getUsername());
         newUsuario.setRoles(usuarioRegisterDTO.getRoles());
 
@@ -90,5 +114,15 @@ public class UsuarioService implements UserDetailsService {
         usuarioRepository.save(newUsuario);
 
         return usuarioRegisterDTO;
+    }
+
+    public UsuarioDTO findByNombre(String nombre) {
+
+        Usuario u = usuarioRepository
+                .findByUsername(nombre)
+                .orElseThrow(() -> new NotFoundException("Usuario con nombre "+nombre+" no encontrado"));
+
+        return usuarioMapper.entityToDto(u);
+
     }
 }

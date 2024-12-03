@@ -1,7 +1,11 @@
 package com.es.jwtsecurity.controller;
 
+import com.es.jwtsecurity.dto.UsuarioDTO;
 import com.es.jwtsecurity.dto.UsuarioLoginDTO;
 import com.es.jwtsecurity.dto.UsuarioRegisterDTO;
+import com.es.jwtsecurity.error.exception.GenericInternalException;
+import com.es.jwtsecurity.error.exception.NotAuthorizedException;
+import com.es.jwtsecurity.error.exception.NotFoundException;
 import com.es.jwtsecurity.service.UsuarioService;
 import com.es.jwtsecurity.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +15,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -34,7 +36,7 @@ public class UsuarioController {
      * La clase CustomUserDetailsService no es más que nuestro UsuarioService pero con otro nombre.
      */
     @Autowired
-    private UsuarioService customUserDetailsService;
+    private UsuarioService usuarioService;
 
     @Autowired
     private TokenService tokenService;
@@ -58,10 +60,6 @@ public class UsuarioController {
             5. Otros detalles adicionales
          */
 
-        System.out.println(
-                usuarioLoginDTO.getUsername() + " " + usuarioLoginDTO.getPassword()
-        );
-
         Authentication authentication = null;
         try {
             authentication = authenticationManager.authenticate(
@@ -69,7 +67,7 @@ public class UsuarioController {
             );
         } catch (Exception e) {
             System.out.println("Excepcion en authentication");
-            e.printStackTrace();
+            throw new NotFoundException("Credenciales del usuario incorrectas");
         }
 
         // Generamos el token
@@ -78,7 +76,7 @@ public class UsuarioController {
             token = tokenService.generateToken(authentication);
         } catch (Exception e) {
             System.out.println("Excepcion en generar token");
-            e.printStackTrace();
+            throw new GenericInternalException("Error al generar el token de autenticación");
         }
 
         // Retornamos el token
@@ -96,13 +94,25 @@ public class UsuarioController {
     public ResponseEntity<UsuarioRegisterDTO> register(
             @RequestBody UsuarioRegisterDTO usuarioRegisterDTO) {
 
-        System.out.println(
-                usuarioRegisterDTO.getPassword()
-        );
-
-        customUserDetailsService.registerUser(usuarioRegisterDTO);
+        usuarioService.registerUser(usuarioRegisterDTO);
 
         return new ResponseEntity<UsuarioRegisterDTO>(usuarioRegisterDTO, HttpStatus.OK);
+
+    }
+    @GetMapping("/byNombre/{nombre}")
+    public ResponseEntity<UsuarioDTO> findByNombre(@PathVariable String nombre, Authentication authentication) {
+
+        System.out.println(authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.equals(new SimpleGrantedAuthority("ROLE_ADMIN"))));
+
+        if(authentication.getAuthorities()
+                .stream()
+                .anyMatch(authority -> authority.equals(new SimpleGrantedAuthority("ROLE_ADMIN"))) || authentication.getName().equals(nombre)) {
+            UsuarioDTO usuarioDTO = usuarioService.findByNombre(nombre);
+            return new ResponseEntity<>(usuarioDTO, HttpStatus.OK);
+        } else {
+            throw new NotAuthorizedException("No tienes los permisos para acceder al recurso");
+        }
 
     }
 

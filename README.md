@@ -3,7 +3,7 @@
 
 ## Descripción del ejercicio
 
-El objetivo de este ejercicio es desarrollar una API REST en **Spring Boot** para gestionar usuarios, productos y sesiones. Implementarás autenticación manual, un sistema de roles con privilegios diferenciados, y el manejo de contraseñas hasheadas y sesiones con tokens cifrados.
+El objetivo de este ejercicio es desarrollar una API REST en **Spring Boot** para gestionar usuarios, productos y sesiones. Implementarás autenticación manual, un sistema de roles con privilegios diferenciados, y el manejo de contraseñas hasheadas y JWTS con tokens cifrados.
 
 ---
 
