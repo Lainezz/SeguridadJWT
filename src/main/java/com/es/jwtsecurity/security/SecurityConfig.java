@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // Deshabilitamos "Cross-Site Request Forgery" (CSRF) (No lo trataremos en este ciclo)
                 .authorizeHttpRequests(auth -> auth // Filtros para securizar diferentes endpoints de la aplicación
                         .requestMatchers("/usuarios/login", "/usuarios/register").permitAll() // Filtro que deja pasar todas las peticiones que vayan a los endpoints que definamos
+                        .requestMatchers(HttpMethod.GET,"/usuarios/byNombre/{nombre}").authenticated()
                         .requestMatchers(HttpMethod.GET,"/productos/byNombre/{nombre}").authenticated()
                         .requestMatchers(HttpMethod.GET,"/productos/{id}").authenticated()
                         .requestMatchers(HttpMethod.GET,"/productos/byNombre/{nombre}").authenticated()

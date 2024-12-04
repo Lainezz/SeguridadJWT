@@ -34,6 +34,9 @@ dependencies {
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    // https://mvnrepository.com/artifact/org.springframework.security/spring-security-taglibs
+    implementation("org.springframework.security:spring-security-taglibs:6.4.1")
+
 }
 
 tasks.withType<Test> {
