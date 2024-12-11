@@ -46,6 +46,16 @@ Se trabajará con las siguientes tres entidades:
 
 ## Endpoints requeridos
 
+1. Tabla Usuarios
+
+- `POST /usuarios/login`: Permite al usuario autenticarse.
+    - **RUTA PÚBLICA** Todas las peticiones a este endpoint deben permitirse
+    - **Entrada**: JSON con `username` y `password`.
+    - **Salida**: Token de la sesión si las credenciales son válidas.
+    - **Excepciones**: 
+      - 400: BadRequestException -> Se lanza esta excepción si el usuario o la password no siguen el formato adecuado
+      - 400: InvalidPasswordException -> Se lanza si la password no sigue el formato correcto
+      - 404: UserNotFoundException -> Se lanza si el login es incorrecto
 1. **Autenticación**:
    - `POST /usuarios/login`: Permite al usuario autenticarse.
       - **RUTA PÚBLICA** Todas las peticiones a este endpoint deben permitirse
